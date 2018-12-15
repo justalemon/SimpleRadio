@@ -1,5 +1,4 @@
-﻿using GTA;
-using NAudio.Wave;
+﻿using NAudio.Wave;
 using System;
 using System.IO;
 using System.Net;
@@ -13,242 +12,270 @@ namespace SimpleRadio.Streaming
     /// </summary>
     public class StreamPlayer
     {
+        /// <summary>
+        /// Timer that handles the opperations over time.
+        /// </summary>
         private System.Timers.Timer HandlingTimer = new System.Timers.Timer();
+        /// <summary>
+        /// Player of buffered media.
+        /// </summary>
+        private BufferedWaveProvider WaveProvider;
+        /// <summary>
+        /// Output Wave Player.
+        /// </summary>
+        private IWavePlayer Player;
+        /// <summary>
+        /// The current state of the playback.
+        /// </summary>
+        private volatile StreamingState State;
+        /// <summary>
+        /// If the last stream piece has been downloaded.
+        /// </summary>
+        private volatile bool FullyDownloaded;
+        /// <summary>
+        /// The class that handles the HTTP calls.
+        /// </summary>
+        private HttpWebRequest Request;
+        /// <summary>
+        /// See the main class to learn what it does.
+        /// </summary>
+        private VolumeWaveProvider16 VolumeProvider;
+
+        /// <summary>
+        /// Checks if the buffer is nearly full.
+        /// </summary>
+        private bool IsBufferNearlyFull => WaveProvider != null && WaveProvider.BufferLength - WaveProvider.BufferedBytes < WaveProvider.WaveFormat.AverageBytesPerSecond / 4;
 
         public StreamPlayer()
         {
+            // Run every 250 MS
             HandlingTimer.Interval = 250;
-            HandlingTimer.Elapsed += new ElapsedEventHandler(timer1_Tick);
-            //Disposed += MP3StreamingPanel_Disposing;
-            //volumeSlider1.VolumeChanged += OnVolumeSliderChanged;
-        }
-
-        private BufferedWaveProvider bufferedWaveProvider;
-        private IWavePlayer waveOut;
-        private volatile StreamingState playbackState;
-        private volatile bool fullyDownloaded;
-        private HttpWebRequest webRequest;
-        private VolumeWaveProvider16 volumeProvider;
-
-        delegate void ShowErrorDelegate(string message);
-
-        private void ShowError(string message)
-        {
-            //UI.Notify(message);
+            // And add the event
+            HandlingTimer.Elapsed += new ElapsedEventHandler(OnTick);
         }
 
         private void StreamMp3(object state)
         {
-            fullyDownloaded = false;
-            var url = (string)state;
-            webRequest = (HttpWebRequest)WebRequest.Create(url);
-            HttpWebResponse resp;
+            // Store that we don't have the stream downloaded
+            FullyDownloaded = false;
+            // Store the URL
+            string URL = (string)state;
+            // Create the web request
+            Request = (HttpWebRequest)WebRequest.Create(URL);
+            // Create a variable for the response
+            HttpWebResponse Response;
+            // Try to make the web request
             try
             {
-                resp = (HttpWebResponse)webRequest.GetResponse();
+                Response = (HttpWebResponse)Request.GetResponse();
             }
-            catch (WebException e)
+            // If there is an exception, just return
+            catch (WebException)
             {
-                if (e.Status != WebExceptionStatus.RequestCanceled)
-                {
-                    ShowError(e.Message);
-                }
                 return;
             }
-            var buffer = new byte[16384 * 4]; // needs to be big enough to hold a decompressed frame
 
-            IMp3FrameDecompressor decompressor = null;
+            // Create a place to store the buffer data (needs to be big enough to hold a decompressed frame)
+            byte[] Buffer = new byte[16384 * 4];
+
+            // Remove the Decompressor
+            IMp3FrameDecompressor Decompressor = null;
+            // Start processing the data
             try
             {
-                using (var responseStream = resp.GetResponseStream())
+                // Get the response stream
+                using (Stream ResponseStream = Response.GetResponseStream())
                 {
-                    var readFullyStream = new FullStream(responseStream);
+                    // Store as a ready stream
+                    FullStream ReadyStream = new FullStream(ResponseStream);
+                    // And start working with it
                     do
                     {
+                        // If the buffer is nearly full
                         if (IsBufferNearlyFull)
                         {
-                            //UI.Notify("Buffer getting full, taking a break");
+                            // Sleep for half a second
                             Thread.Sleep(500);
                         }
                         else
                         {
-                            Mp3Frame frame;
+                            // Set a place to store the frame
+                            Mp3Frame Frame;
+                            // Try to create the frame from the stream that is ready
                             try
                             {
-                                frame = Mp3Frame.LoadFromStream(readFullyStream);
+                                Frame = Mp3Frame.LoadFromStream(ReadyStream);
                             }
+                            // If we reach the end of the stream, break the do
                             catch (EndOfStreamException)
                             {
-                                fullyDownloaded = true;
-                                // reached the end of the MP3 file / stream
+                                FullyDownloaded = true;
                                 break;
                             }
+                            // If we get a web exception, break the do
+                            // Original Message: Probably we have aborted download from the GUI thread
                             catch (WebException)
                             {
-                                // probably we have aborted download from the GUI thread
                                 break;
                             }
-                            if (frame == null) break;
-                            if (decompressor == null)
+                            // If there is no frame, break the do
+                            if (Frame == null)
                             {
-                                // don't think these details matter too much - just help ACM select the right codec
+                                break;
+                            }
+                            // If there is no decompressor:
+                            if (Decompressor == null)
+                            {
+                                // Don't think these details matter too much - just help ACM select the right codec
                                 // however, the buffered provider doesn't know what sample rate it is working at
                                 // until we have a frame
-                                decompressor = CreateFrameDecompressor(frame);
-                                bufferedWaveProvider = new BufferedWaveProvider(decompressor.OutputFormat);
-                                bufferedWaveProvider.BufferDuration =
-                                    TimeSpan.FromSeconds(20); // allow us to get well ahead of ourselves
-                                //this.bufferedWaveProvider.BufferedDuration = 250;
+                                Decompressor = CreateFrameDecompressor(Frame);
+                                // Create a new wave provider
+                                WaveProvider = new BufferedWaveProvider(Decompressor.OutputFormat)
+                                {
+                                    BufferDuration = TimeSpan.FromSeconds(20) // Allow us to get well ahead of ourselves
+                                };
                             }
-                            int decompressed = decompressor.DecompressFrame(frame, buffer, 0);
-                            //Debug.WriteLine(String.Format("Decompressed a frame {0}", decompressed));
-                            bufferedWaveProvider.AddSamples(buffer, 0, decompressed);
+                            // Decompress a single frame
+                            int Decompressed = Decompressor.DecompressFrame(Frame, Buffer, 0);
+                            // And add it to the buffer (TODO: Confirm if my explanations are correct)
+                            WaveProvider.AddSamples(Buffer, 0, Decompressed);
                         }
-
-                    } while (playbackState != StreamingState.Stopped);
-                    //UI.Notify("Exiting");
-                    // was doing this in a finally block, but for some reason
-                    // we are hanging on response stream .Dispose so never get there
-                    decompressor.Dispose();
+                    } while (State != StreamingState.Stopped);
+                    // Finally, dispose the decompressor
+                    Decompressor.Dispose();
                 }
             }
             finally
             {
-                if (decompressor != null)
+                // If the decompressor is not empty, dispose it
+                if (Decompressor != null)
                 {
-                    decompressor.Dispose();
+                    Decompressor.Dispose();
                 }
             }
         }
 
-        private static IMp3FrameDecompressor CreateFrameDecompressor(Mp3Frame frame)
+        /// <summary>
+        /// Returns an MP3 Frame decompressor from a single frame.
+        /// </summary>
+        private static IMp3FrameDecompressor CreateFrameDecompressor(Mp3Frame Frame)
         {
-            WaveFormat waveFormat = new Mp3WaveFormat(frame.SampleRate, frame.ChannelMode == ChannelMode.Mono ? 1 : 2,
-                frame.FrameLength, frame.BitRate);
-            return new AcmMp3FrameDecompressor(waveFormat);
+            // Create the wave format
+            WaveFormat Format = new Mp3WaveFormat(Frame.SampleRate, Frame.ChannelMode == ChannelMode.Mono ? 1 : 2, Frame.FrameLength, Frame.BitRate);
+            // And return it as an MP3 frame decompressor
+            return new AcmMp3FrameDecompressor(Format);
         }
 
-        private bool IsBufferNearlyFull
-        {
-            get
-            {
-                return bufferedWaveProvider != null &&
-                       bufferedWaveProvider.BufferLength - bufferedWaveProvider.BufferedBytes
-                       < bufferedWaveProvider.WaveFormat.AverageBytesPerSecond / 4;
-            }
-        }
-
+        /// <summary>
+        /// Stops the playback of the stream
+        /// </summary>
         public void Stop()
         {
-            if (playbackState != StreamingState.Stopped)
+            // If the stream is not already stopped
+            if (State != StreamingState.Stopped)
             {
-                if (!fullyDownloaded)
+                // If the stream is not fully downloaded, abort the download
+                if (!FullyDownloaded)
                 {
-                    webRequest.Abort();
+                    Request.Abort();
                 }
-
-                playbackState = StreamingState.Stopped;
-                if (waveOut != null)
+                // Store a stopped state
+                State = StreamingState.Stopped;
+                // If there is an existing player
+                if (Player != null)
                 {
-                    waveOut.Stop();
-                    waveOut.Dispose();
-                    waveOut = null;
+                    // Stop the player
+                    Player.Stop();
+                    // Dispose the player
+                    Player.Dispose();
+                    // And set it to null
+                    Player = null;
                 }
+                // Disable the timer
                 HandlingTimer.Enabled = false;
-                // n.b. streaming thread may not yet have exited
-                //Thread.Sleep(500);
-                ShowBufferState(0);
             }
         }
 
-        private void ShowBufferState(double totalSeconds)
+        /// <summary>
+        /// Event executed every iteration of the timer.
+        /// </summary>
+        private void OnTick(object sender, ElapsedEventArgs e)
         {
-            //labelBuffered.Text = String.Format("{0:0.0}s", totalSeconds);
-            //progressBarBuffer.Value = (int)(totalSeconds * 1000);
-        }
-
-        private void timer1_Tick(object sender, ElapsedEventArgs e)
-        {
-            if (playbackState != StreamingState.Stopped)
+            // If the stream is not stopped
+            if (State != StreamingState.Stopped)
             {
-                if (waveOut == null && bufferedWaveProvider != null)
+                // If there is no player and no wave device
+                if (Player == null && WaveProvider != null)
                 {
-                    //UI.Notify("Creating WaveOut Device");
-                    waveOut = CreateWaveOut();
-                    waveOut.PlaybackStopped += OnPlaybackStopped;
-                    volumeProvider = new VolumeWaveProvider16(bufferedWaveProvider);
+                    // Create a new wave device
+                    Player = new WaveOut();
+                    // Add a volume controller
+                    VolumeProvider = new VolumeWaveProvider16(WaveProvider);
                     //volumeProvider.Volume = volumeSlider1.Volume;
-                    waveOut.Init(volumeProvider);
+                    Player.Init(VolumeProvider);
                     //progressBarBuffer.Maximum = (int)bufferedWaveProvider.BufferDuration.TotalMilliseconds;
                 }
-                else if (bufferedWaveProvider != null)
+                // If there is a player but not a wave device
+                else if (WaveProvider != null)
                 {
-                    var bufferedSeconds = bufferedWaveProvider.BufferedDuration.TotalSeconds;
-                    ShowBufferState(bufferedSeconds);
-                    // make it stutter less if we buffer up a decent amount before playing
-                    if (bufferedSeconds < 0.5 && playbackState == StreamingState.Playing && !fullyDownloaded)
+                    // Store the buffered seconds
+                    double BufferedSeconds = WaveProvider.BufferedDuration.TotalSeconds;
+
+                    // Make it stutter less by buffering up a decent amount before playing
+                    if (BufferedSeconds < 0.5 && State == StreamingState.Playing && !FullyDownloaded)
                     {
                         Pause();
                     }
-                    else if (bufferedSeconds > 4 && playbackState == StreamingState.Buffering)
+                    else if (BufferedSeconds > 4 && State == StreamingState.Buffering)
                     {
                         Play();
                     }
-                    else if (fullyDownloaded && bufferedSeconds == 0)
+                    else if (FullyDownloaded && BufferedSeconds == 0)
                     {
-                        //UI.Notify("Reached end of stream");
-                        Stop();
+                        Stop(); // We have reached the end of the stream
                     }
                 }
-
             }
         }
 
+        /// <summary>
+        /// Plays the stored stream.
+        /// </summary>
         public void Play()
         {
-            waveOut.Play();
-            //UI.Notify(String.Format("Started playing, waveOut.PlaybackState={0}", waveOut.PlaybackState));
-            playbackState = StreamingState.Playing;
+            // Reproduce the player
+            Player.Play();
+            // Store the current state
+            State = StreamingState.Playing;
         }
 
+        /// <summary>
+        /// Plays a stream on the player.
+        /// </summary>
         public void Play(string URL)
         {
+            // Stop the existing stream
             Stop();
-            playbackState = StreamingState.Buffering;
-            bufferedWaveProvider = null;
+            // Store a buffering state
+            State = StreamingState.Buffering;
+            // Remove the wave provider
+            WaveProvider = null;
+            // Run the streaming function on a separate thread.
             ThreadPool.QueueUserWorkItem(StreamMp3, URL);
+            // Enable the timer
             HandlingTimer.Enabled = true;
         }
 
-        private void Pause()
+        /// <summary>
+        /// Pauses the streaming playback.
+        /// </summary>
+        public void Pause()
         {
-            playbackState = StreamingState.Buffering;
-            waveOut.Pause();
-            //UI.Notify(String.Format("Paused to buffer, waveOut.PlaybackState={0}", waveOut.PlaybackState));
-        }
-
-        private IWavePlayer CreateWaveOut()
-        {
-            return new WaveOut();
-        }
-
-        private void buttonPause_Click(object sender, EventArgs e)
-        {
-            if (playbackState == StreamingState.Playing || playbackState == StreamingState.Buffering)
-            {
-                waveOut.Pause();
-                //UI.Notify(String.Format("User requested Pause, waveOut.PlaybackState={0}", waveOut.PlaybackState));
-                playbackState = StreamingState.Paused;
-            }
-        }
-
-        private void OnPlaybackStopped(object sender, StoppedEventArgs e)
-        {
-            //UI.Notify("Playback Stopped");
-            if (e.Exception != null)
-            {
-                //UI.Notify(String.Format("Playback Error {0}", e.Exception.Message));
-            }
+            // Store a buffering state
+            State = StreamingState.Buffering;
+            // And pause the player
+            Player.Pause();
         }
     }
 }
