@@ -1,55 +1,70 @@
-﻿using GTA;
-using System;
+﻿using System;
 using System.IO;
 
 namespace SimpleRadio.Streaming
 {
     /// <summary>
-    /// From https://github.com/naudio/NAudio/blob/master/NAudioDemo/Mp3StreamingDemo/ReadFullyStream.cs
+    /// Class that handles a complete audio stream.
     /// </summary>
     public class FullStream : Stream
     {
-        private readonly Stream sourceStream;
-        private long pos; // psuedo-position
-        private readonly byte[] readAheadBuffer;
-        private int readAheadLength;
-        private int readAheadOffset;
+        /// <summary>
+        /// The original stream.
+        /// </summary>
+        private readonly Stream SourceStream;
+        /// <summary>
+        /// TODO: Check what this does.
+        /// </summary>
+        private long _Position;
+        /// <summary>
+        /// TODO: Check what this does.
+        /// </summary>
+        private readonly byte[] ReadAheadBuffer;
+        /// <summary>
+        /// TODO: Check what this does.
+        /// </summary>
+        private int ReadAheadLength;
+        /// <summary>
+        /// TODO: Check what this does.
+        /// </summary>
+        private int ReadAheadOffset;
 
-        public FullStream(Stream sourceStream)
-        {
-            this.sourceStream = sourceStream;
-            readAheadBuffer = new byte[4096];
-        }
+        /// <summary>
+        /// If this stream can be readed.
+        /// </summary>
         public override bool CanRead
         {
             get { return true; }
         }
-
+        /// <summary>
+        /// If this stream can seek.
+        /// </summary>
         public override bool CanSeek
         {
             get { return false; }
         }
-
+        /// <summary>
+        /// If this stream can write.
+        /// </summary>
         public override bool CanWrite
         {
             get { return false; }
         }
-
-        public override void Flush()
-        {
-            throw new InvalidOperationException();
-        }
-
+        /// <summary>
+        /// The length of the stream.
+        /// </summary>
         public override long Length
         {
-            get { return pos; }
+            get { return _Position; }
         }
-
+        /// <summary>
+        /// The current position of the stream.
+        /// </summary>
         public override long Position
         {
             get
             {
-                return pos;
+                return _Position;
             }
             set
             {
@@ -57,47 +72,59 @@ namespace SimpleRadio.Streaming
             }
         }
 
-
-        public override int Read(byte[] buffer, int offset, int count)
+        public FullStream(Stream Source)
         {
-            int bytesRead = 0;
-            while (bytesRead < count)
+            // Store the original stream
+            SourceStream = Source;
+            // Store this variable (Remember to check what it does later)
+            ReadAheadBuffer = new byte[4096];
+        }
+
+        public override int Read(byte[] Buffer, int Offset, int Count)
+        {
+            // TODO: Add comments about what is going on over here
+            int BytesRead = 0;
+            while (BytesRead < Count)
             {
-                int readAheadAvailableBytes = readAheadLength - readAheadOffset;
-                int bytesRequired = count - bytesRead;
-                if (readAheadAvailableBytes > 0)
+                int ReadAheadAvailableBytes = ReadAheadLength - ReadAheadOffset;
+                int BytesRequired = Count - BytesRead;
+                if (ReadAheadAvailableBytes > 0)
                 {
-                    int toCopy = Math.Min(readAheadAvailableBytes, bytesRequired);
-                    Array.Copy(readAheadBuffer, readAheadOffset, buffer, offset + bytesRead, toCopy);
-                    bytesRead += toCopy;
-                    readAheadOffset += toCopy;
+                    int ToCopy = Math.Min(ReadAheadAvailableBytes, BytesRequired);
+                    Array.Copy(ReadAheadBuffer, ReadAheadOffset, Buffer, Offset + BytesRead, ToCopy);
+                    BytesRead += ToCopy;
+                    ReadAheadOffset += ToCopy;
                 }
                 else
                 {
-                    readAheadOffset = 0;
-                    readAheadLength = sourceStream.Read(readAheadBuffer, 0, readAheadBuffer.Length);
-                    //UI.Notify(string.Format("Read {0} bytes (requested {1})", readAheadLength, readAheadBuffer.Length));
-                    if (readAheadLength == 0)
+                    ReadAheadOffset = 0;
+                    ReadAheadLength = SourceStream.Read(ReadAheadBuffer, 0, ReadAheadBuffer.Length);
+                    if (ReadAheadLength == 0)
                     {
                         break;
                     }
                 }
             }
-            pos += bytesRead;
-            return bytesRead;
+            _Position += BytesRead;
+            return BytesRead;
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
+        public override long Seek(long Offset, SeekOrigin Origin)
         {
             throw new InvalidOperationException();
         }
 
-        public override void SetLength(long value)
+        public override void SetLength(long Value)
         {
             throw new InvalidOperationException();
         }
 
-        public override void Write(byte[] buffer, int offset, int count)
+        public override void Write(byte[] Buffer, int Offset, int Count)
+        {
+            throw new InvalidOperationException();
+        }
+
+        public override void Flush()
         {
             throw new InvalidOperationException();
         }
