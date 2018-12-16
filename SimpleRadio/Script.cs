@@ -69,6 +69,7 @@ namespace SimpleRadio
 
             // And add our events
             Tick += OnTickFixes;
+            Tick += OnTickControls;
             Tick += OnTickDraw;
             Aborted += (Sender, Args) => { Streaming.Stop(); };
         }
@@ -96,6 +97,20 @@ namespace SimpleRadio
             }
         }
 
+        private void OnTickControls(object Sender, EventArgs Args)
+        {
+            // Disable the weapon wheel
+            Game.DisableControlThisFrame(0, Control.VehicleRadioWheel);
+            Game.DisableControlThisFrame(0, Control.VehicleNextRadio);
+            Game.DisableControlThisFrame(0, Control.VehiclePrevRadio);
+
+            // Check if a control has been pressed
+            if (Game.IsDisabledControlJustPressed(0, Control.VehicleRadioWheel) || Game.IsDisabledControlJustPressed(0, Control.VehicleNextRadio))
+            {
+                NextRadio();
+            }
+        }
+
         private void OnTickDraw(object Sender, EventArgs Args)
         {
             // If there is a frequency, add it at the end like every normal radio ad
@@ -108,6 +123,15 @@ namespace SimpleRadio
             CurrentUI.Draw();
             UIText NextUI = new UIText(Next.Name, new Point((int)(UI.WIDTH * .5f), (int)(UI.HEIGHT * .09f)), .5f, Color.LightGray, GTA.Font.ChaletLondon, true, true, false);
             NextUI.Draw();
+        }
+
+        private void NextRadio()
+        {
+            // Is the next radio is vanilla
+            if (Next.Type == RadioType.Vanilla)
+            {
+                Game.RadioStation = (RadioStation)Next.ID;
+            }
         }
     }
 }
