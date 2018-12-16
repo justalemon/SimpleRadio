@@ -24,8 +24,22 @@ namespace SimpleRadio
         {
             get
             {
+                // Get the index of the current radio
                 int CurrentIndex = Radios.IndexOf(Selected);
-                return Radios[CurrentIndex == 0 ? Radios.Count - 1 : CurrentIndex - 1];
+                // Get the index of the previous item
+                int CorrectIndex = CurrentIndex == 0 ? Radios.Count - 1 : CurrentIndex - 1;
+                // Get the previous item
+                Radio PossibleRadio = Radios[CorrectIndex];
+                // If the previous item is West Coast Talk Radio or Blaine County Radio, skip it
+                if (PossibleRadio.ID == 4 || PossibleRadio.ID == 9)
+                {
+                    return Radios[CorrectIndex - 1];
+                }
+                // Otherwise, return the correct radio
+                else
+                {
+                    return PossibleRadio;
+                }
             }
         }
         /// <summary>
@@ -35,8 +49,22 @@ namespace SimpleRadio
         {
             get
             {
+                // Get the index of the current radio
                 int CurrentIndex = Radios.IndexOf(Selected);
-                return Radios[CurrentIndex == Radios.Count - 1 ? 0 : CurrentIndex + 1];
+                // Get the index of the next item
+                int CorrectIndex = CurrentIndex == Radios.Count - 1 ? 0 : CurrentIndex + 1;
+                // Get the next item
+                Radio PossibleRadio = Radios[CorrectIndex];
+                // If the next item is West Coast Talk Radio or Blaine County Radio, skip it
+                if (PossibleRadio.ID == 4 || PossibleRadio.ID == 9)
+                {
+                    return Radios[CorrectIndex + 1];
+                }
+                // Otherwise, return the correct radio
+                else
+                {
+                    return PossibleRadio;
+                }
             }
         }
 
