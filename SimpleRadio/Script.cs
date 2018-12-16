@@ -176,6 +176,7 @@ namespace SimpleRadio
             // If the radio is a stream
             else if (Next.Type == RadioType.Stream)
             {
+                Streaming.Stop();
                 Game.RadioStation = RadioStation.RadioOff;
                 Streaming.Play(Next.Location);
                 Selected = Next;
