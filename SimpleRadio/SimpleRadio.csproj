@@ -54,6 +54,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums.cs" />
+    <Compile Include="Items\ConfigFile.cs" />
+    <Compile Include="Items\Radio.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streaming\FullStream.cs" />
