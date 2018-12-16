@@ -16,6 +16,29 @@ namespace SimpleRadio
         private List<Radio> Radios = new List<Radio>();
         private Radio Selected = null;
 
+        /// <summary>
+        /// The previous radio.
+        /// </summary>
+        public Radio Previous
+        {
+            get
+            {
+                int CurrentIndex = Radios.IndexOf(Selected);
+                return Radios[CurrentIndex == 0 ? Radios.Count - 1 : CurrentIndex - 1];
+            }
+        }
+        /// <summary>
+        /// The next radio.
+        /// </summary>
+        public Radio Next
+        {
+            get
+            {
+                int CurrentIndex = Radios.IndexOf(Selected);
+                return Radios[CurrentIndex == Radios.Count - 1 ? 0 : CurrentIndex + 1];
+            }
+        }
+
         public SimpleRadio()
         {
             // Create an item for turning the radio off
@@ -73,12 +96,6 @@ namespace SimpleRadio
         {
             // If there is a frequency, add it at the end like every normal radio ad
             string RadioName = Selected.Frequency == 0 ? Selected.Name : Selected.Name + " " + Selected.Frequency.ToString();
-
-            // Get the index of the current radio
-            int CurrentIndex = Radios.IndexOf(Selected);
-            // Get the previous and next radio
-            Radio Previous = Radios[CurrentIndex == 0 ? Radios.Count - 1 : CurrentIndex - 1];
-            Radio Next = Radios[CurrentIndex == Radios.Count - 1 ? 0 : CurrentIndex + 1];
 
             // Draw the previous, current and next radio name
             UIText PreviousUI = new UIText(Previous.Name, new Point((int)(UI.WIDTH * .5f), (int)(UI.HEIGHT * .025f)), .5f, Color.LightGray, GTA.Font.ChaletLondon, true, true, false);
