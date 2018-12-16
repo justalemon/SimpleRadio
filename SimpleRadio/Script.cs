@@ -80,13 +80,21 @@ namespace SimpleRadio
             };
             // Add this item
             Radios.Add(Off);
-            // Open the JSON file for reading
-            using (StreamReader Reader = new StreamReader("scripts\\SimpleRadio\\Vanilla.json"))
+            // Open the JSON files for reading
+            foreach (string File in Directory.GetFiles("scripts\\SimpleRadio", "*.json"))
             {
-                // Read the file content
-                string JSON = Reader.ReadToEnd();
-                // And add it onto the existing list of radios
-                Radios.AddRange(JsonConvert.DeserializeObject<ConfigFile>(JSON).Radios);
+                // Open the JSON files for reading
+                using (StreamReader Reader = new StreamReader(File))
+                {
+                    // Read the file content
+                    string JSON = Reader.ReadToEnd();
+                    // Parse it
+                    ConfigFile Config = JsonConvert.DeserializeObject<ConfigFile>(JSON);
+                    // And add it onto the existing list of radios
+                    Radios.AddRange(Config.Radios);
+                    // Notify that we have loaded the file
+                    UI.Notify($"List of radios loaded: {Config.Name} by {Config.Author}");
+                }
             }
 
             // Set the selected radio as off, just in case
