@@ -194,6 +194,8 @@ namespace SimpleRadio.Streaming
                 }
                 // Disable the timer
                 HandlingTimer.Enabled = false;
+                // Wait half a second
+                Thread.Sleep(500);
             }
         }
 
