@@ -97,11 +97,11 @@ namespace SimpleRadio
                 }
             }
 
+            // Order the radios by frequency
+            Radios = Radios.OrderBy(X => X.Frequency).ToList();
+
             // Set the selected radio as off, just in case
             Selected = Off;
-
-            // Order the radios by frequency
-            Radios.OrderBy(X => X.Frequency);
 
             // And add our events
             Tick += OnTickFixes;
