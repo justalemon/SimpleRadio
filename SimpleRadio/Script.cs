@@ -169,7 +169,16 @@ namespace SimpleRadio
             // Is the next radio is vanilla
             if (Next.Type == RadioType.Vanilla)
             {
+                Streaming.Stop();
                 Game.RadioStation = (RadioStation)Next.ID;
+                Selected = Next;
+            }
+            // If the radio is a stream
+            else if (Next.Type == RadioType.Stream)
+            {
+                Game.RadioStation = RadioStation.RadioOff;
+                Streaming.Play(Next.Location);
+                Selected = Next;
             }
         }
     }
