@@ -1,0 +1,12 @@
+{
+    "name": "Chilean Radios",
+    "author": "Lemon",
+    "radios": [
+        {
+            "name": "Radio Candela",
+            "frequency": 95.3,
+            "type": 2,
+            "loc": "http://unlimited11-cl.dps.live/candela/mp3/icecast.audio"
+        }
+    ]
+}
