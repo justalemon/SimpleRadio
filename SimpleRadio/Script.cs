@@ -72,11 +72,14 @@ namespace SimpleRadio
             Tick += OnTickControls;
             Tick += OnTickDraw;
             Aborted += (Sender, Args) => { Streaming.Stop(); };
+
+            // Enable the mobile phone radio
+            Function.Call(Hash.SET_MOBILE_PHONE_RADIO_STATE, true);
         }
 
         private void OnTickFixes(object Sender, EventArgs Args)
         {
-            // Enable the mobile radio
+            // Enable the mobile radio this tick
             Function.Call(Hash.SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY, true);
 
             // If the selected radio type is vanilla and the current station does not matches
