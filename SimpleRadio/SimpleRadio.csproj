@@ -65,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="SimpleRadio\Chile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="SimpleRadio\Vanilla.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
