@@ -1,4 +1,5 @@
-﻿using GTA;
+using GTA;
+using GTA.Native;
 using Newtonsoft.Json;
 using SimpleRadio.Items;
 using SimpleRadio.Streaming;
@@ -67,13 +68,16 @@ namespace SimpleRadio
             Radios.OrderBy(X => X.Frequency);
 
             // And add our events
-            Tick += OnTick;
+            Tick += OnTickFixes;
             Tick += OnTickDraw;
             Aborted += (Sender, Args) => { Streaming.Stop(); };
         }
 
-        private void OnTick(object Sender, EventArgs Args)
+        private void OnTickFixes(object Sender, EventArgs Args)
         {
+            // Enable the mobile radio
+            Function.Call(Hash.SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY, true);
+
             // If the selected radio type is vanilla and the current station does not matches
             if (Selected.Type == RadioType.Vanilla || Selected.ID != (int)Game.RadioStation)
             {
