@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace SimpleRadio.Items
 {
@@ -25,7 +25,7 @@ namespace SimpleRadio.Items
         /// <summary>
         /// The location of the Radio. This can be a path or URL/URI.
         /// </summary>
-        [JsonProperty("location")]
+        [JsonProperty("loc")]
         public string Location { get; set; }
         /// <summary>
         /// An optional ID for playing the radio.
