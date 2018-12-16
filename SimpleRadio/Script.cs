@@ -118,8 +118,8 @@ namespace SimpleRadio
             // Enable the mobile radio this tick
             Function.Call(Hash.SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY, true);
 
-            // If the selected radio type is vanilla and the current station does not matches
-            if (Selected.Type == RadioType.Vanilla || Selected.ID != (int)Game.RadioStation)
+            // If the selected radio type is not off or unknown and the selected radio station is not the same as stored
+            if (((RadioStation)Selected.ID == RadioStation.RadioOff || (RadioStation)Selected.ID == RadioStation.Unknown) && (RadioStation)Selected.ID != Game.RadioStation)
             {
                 // Get the item where the radio ID matches
                 Radio TempRadio = Radios.SingleOrDefault(X => X.ID == (int)Game.RadioStation);
