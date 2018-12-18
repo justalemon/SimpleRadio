@@ -175,8 +175,8 @@ namespace SimpleRadio.Streaming
             // If the stream is not already stopped
             if (State != StreamingState.Stopped)
             {
-                // If the stream is not fully downloaded, abort the download
-                if (!FullyDownloaded)
+                // If the stream is not fully downloaded and there is a request being made, abort it
+                if (!FullyDownloaded && Request != null)
                 {
                     Request.Abort();
                 }
