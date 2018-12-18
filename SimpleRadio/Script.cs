@@ -117,23 +117,6 @@ namespace SimpleRadio
         {
             // Enable the mobile radio this tick
             Function.Call(Hash.SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY, true);
-
-            // If the selected radio type is not off or unknown and the selected radio station is not the same as stored
-            if (((RadioStation)Selected.ID == RadioStation.RadioOff || (RadioStation)Selected.ID == RadioStation.Unknown) && (RadioStation)Selected.ID != Game.RadioStation)
-            {
-                // Get the item where the radio ID matches
-                Radio TempRadio = Radios.SingleOrDefault(X => X.ID == (int)Game.RadioStation);
-                // If is not null, use it
-                if (TempRadio != null)
-                {
-                    Selected = TempRadio;
-                }
-                // If if null, set the radio as off
-                else
-                {
-                    Selected = Radios.SingleOrDefault(X => X.Name == "Radio Off");
-                }
-            }
         }
 
         private void OnTickControls(object Sender, EventArgs Args)
