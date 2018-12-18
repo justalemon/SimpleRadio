@@ -61,7 +61,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streaming\FullStream.cs" />
     <Compile Include="Streaming\Player.cs" />
-    <Compile Include="Streaming\States.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
