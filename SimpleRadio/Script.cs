@@ -100,9 +100,6 @@ namespace SimpleRadio
             // Order the radios by frequency
             Radios = Radios.OrderBy(X => X.Frequency).ToList();
 
-            // Set the selected radio as off, just in case
-            Selected = Off;
-
             // And add our events
             Tick += OnTickFixes;
             Tick += OnTickControls;
@@ -111,6 +108,10 @@ namespace SimpleRadio
 
             // Enable the mobile phone radio
             Function.Call(Hash.SET_MOBILE_PHONE_RADIO_STATE, true);
+
+            // Set the selected radio as off, just in case
+            Selected = Off;
+            Game.RadioStation = RadioStation.RadioOff;
         }
 
         private void OnTickFixes(object Sender, EventArgs Args)
