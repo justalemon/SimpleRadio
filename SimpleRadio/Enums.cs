@@ -24,9 +24,17 @@
     /// </summary>
     public enum StreamingState
     {
-        Stopped,
-        Playing,
-        Buffering,
-        Paused
+        /// <summary>
+        /// The stream is completely stopped.
+        /// </summary>
+        Stopped = 0,
+        /// <summary>
+        /// The stream is playing.
+        /// </summary>
+        Playing = 1,
+        /// <summary>
+        /// The stream is paused and buffering.
+        /// </summary>
+        Buffering = 2
     }
 }
