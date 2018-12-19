@@ -1,5 +1,6 @@
 using GTA;
 using GTA.Native;
+using NAudio.Wave;
 using Newtonsoft.Json;
 using SimpleRadio.Items;
 using SimpleRadio.Streaming;
@@ -16,6 +17,9 @@ namespace SimpleRadio
         private StreamPlayer Streaming = new StreamPlayer();
         private List<Radio> Radios = new List<Radio>();
         private Radio Selected = null;
+        private WaveOutEvent OutputDevice = new WaveOutEvent();
+        private MediaFoundationReader AudioFile = null;
+        private Dictionary<Radio, TimeSpan> Progress = new Dictionary<Radio, TimeSpan>();
 
         /// <summary>
         /// The previous radio.
@@ -150,21 +154,46 @@ namespace SimpleRadio
 
         private void NextRadio()
         {
+            // If there is a long file currently playing, store the playback status
+            if (OutputDevice.PlaybackState == PlaybackState.Playing)
+            {
+                Progress[Selected] = AudioFile.CurrentTime;
+            }
+
+            // Stop the streaming radio and local file
+            Streaming.Stop();
+            OutputDevice.Stop();
+
             // Is the next radio is vanilla
             if (Next.Type == RadioType.Vanilla)
             {
-                Streaming.Stop();
                 Game.RadioStation = (RadioStation)Next.ID;
-                Selected = Next;
+            }
+            // If the radio is a single large file
+            else if (Next.Type == RadioType.SingleFile)
+            {
+                Game.RadioStation = RadioStation.RadioOff;
+                if (AudioFile != null)
+                {
+                    AudioFile.Dispose();
+                }
+                AudioFile = new MediaFoundationReader(Next.Location);
+                OutputDevice.Init(AudioFile);
+                if (Progress.ContainsKey(Next))
+                {
+                    AudioFile.CurrentTime = Progress[Next];
+                }
+                OutputDevice.Play();
             }
             // If the radio is a stream
             else if (Next.Type == RadioType.Stream)
             {
-                Streaming.Stop();
                 Game.RadioStation = RadioStation.RadioOff;
                 Streaming.Play(Next.Location);
-                Selected = Next;
             }
+
+            // Set the next radio as the selected one
+            Selected = Next;
         }
     }
 }
