@@ -20,6 +20,7 @@ namespace SimpleRadio
         private WaveOutEvent OutputDevice = new WaveOutEvent();
         private MediaFoundationReader AudioFile = null;
         private Dictionary<Radio, TimeSpan> Progress = new Dictionary<Radio, TimeSpan>();
+        private Random Randomizer = new Random();
 
         /// <summary>
         /// The previous radio.
@@ -182,6 +183,12 @@ namespace SimpleRadio
                 if (Progress.ContainsKey(Next))
                 {
                     AudioFile.CurrentTime = Progress[Next];
+                }
+                else
+                {
+                    int RandomPosition = Randomizer.Next((int)AudioFile.TotalTime.TotalSeconds);
+                    TimeSpan RandomTimeSpan = TimeSpan.FromSeconds(RandomPosition);
+                    AudioFile.CurrentTime = RandomTimeSpan;
                 }
                 OutputDevice.Play();
             }
