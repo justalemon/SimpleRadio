@@ -21,7 +21,16 @@ namespace SimpleRadio
         /// <summary>
         /// List of radios added by the user.
         /// </summary>
-        private List<Radio> Radios = new List<Radio>();
+        private List<Radio> Radios = new List<Radio>
+        {
+            new Radio()
+            {
+                Name = "Radio Off",
+                Frequency = 0,
+                Type = RadioType.Vanilla,
+                ID = 255
+            }
+        };
         /// <summary>
         /// The current selected radio by the user.
         /// </summary>
@@ -80,16 +89,6 @@ namespace SimpleRadio
 
         public SimpleRadio()
         {
-            // Create an item for turning the radio off
-            Radio Off = new Radio()
-            {
-                Name = "Radio Off",
-                Frequency = 0,
-                Type = RadioType.Vanilla,
-                ID = 255
-            };
-            // Add this item
-            Radios.Add(Off);
             // Open the JSON files for reading
             foreach (string File in Directory.GetFiles("scripts\\SimpleRadio", "*.json"))
             {
@@ -107,9 +106,6 @@ namespace SimpleRadio
                 }
             }
 
-            // Order the radios by frequency
-            Radios = Radios.OrderBy(X => X.Frequency).ToList();
-
             // And add our events
             Tick += OnTickFixes;
             Tick += OnTickControls;
@@ -121,8 +117,11 @@ namespace SimpleRadio
             Function.Call(Hash.SET_MOBILE_PHONE_RADIO_STATE, true);
 
             // Set the selected radio as off, just in case
-            Selected = Off;
+            Selected = Radios[0];
             Game.RadioStation = RadioStation.RadioOff;
+
+            // Order the radios by frequency
+            Radios = Radios.OrderBy(X => X.Frequency).ToList();
         }
 
         private void OnTickFixes(object Sender, EventArgs Args)
