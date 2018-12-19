@@ -51,7 +51,7 @@
             "loc": "scripts\\SimpleRadio\\GTAIV\\TheClassics\\CLASSICS_MIX.wav"
         },
         {
-            "name": "Vladivostok FM (IV)",
+            "name": "Vladivostok FM (EFLC)",
             "frequency": 100.8,
             "type": 1,
             "loc": "scripts\\SimpleRadio\\GTAIV\\VladivostokEFLC\\EUROBEAT.wav"
