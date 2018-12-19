@@ -27,12 +27,6 @@
             "id": 3
         },
         {
-            "name": "West Coast Talk Radio",
-            "frequency": 95.6,
-            "type": 0,
-            "id": 4
-        },
-        {
             "name": "Rebel Radio",
             "frequency": 101.9,
             "type": 0,
@@ -55,12 +49,6 @@
             "frequency": 95.6,
             "type": 0,
             "id": 8
-        },
-        {
-            "name": "Blaine County Radio",
-            "frequency": 96.5,
-            "type": 0,
-            "id": 9
         },
         {
             "name": "The Blue Ark",
