@@ -20,6 +20,7 @@ namespace SimpleRadio
         private WaveOutEvent OutputDevice = new WaveOutEvent();
         private MediaFoundationReader AudioFile = null;
         private Dictionary<Radio, TimeSpan> Progress = new Dictionary<Radio, TimeSpan>();
+        private Dictionary<Radio, Song> CurrentSong = new Dictionary<Radio, Song>();
         private Random Randomizer = new Random();
 
         /// <summary>
@@ -109,6 +110,7 @@ namespace SimpleRadio
             Tick += OnTickFixes;
             Tick += OnTickControls;
             Tick += OnTickDraw;
+            OutputDevice.PlaybackStopped += OnFileStop;
             Aborted += (Sender, Args) => { Streaming.Stop(); };
 
             // Enable the mobile phone radio
@@ -153,6 +155,17 @@ namespace SimpleRadio
             NextUI.Draw();
         }
 
+        private void OnFileStop(object Sender, StoppedEventArgs Args)
+        {
+            if (AudioFile.TotalTime == AudioFile.CurrentTime && Selected.Type == RadioType.Radio)
+            {
+                CurrentSong[Selected] = Selected.Songs[Randomizer.Next(Selected.Songs.Count)];
+                AudioFile = new MediaFoundationReader(Selected.Location + "\\" + CurrentSong[Selected].File);
+                OutputDevice.Init(AudioFile);
+                OutputDevice.Play();
+            }
+        }
+
         private void NextRadio()
         {
             // If there is a long file currently playing, store the playback status
@@ -171,14 +184,19 @@ namespace SimpleRadio
                 Game.RadioStation = (RadioStation)Next.ID;
             }
             // If the radio is a single large file
-            else if (Next.Type == RadioType.SingleFile)
+            else if (Next.Type == RadioType.SingleFile || Next.Type == RadioType.Radio)
             {
                 Game.RadioStation = RadioStation.RadioOff;
                 if (AudioFile != null)
                 {
                     AudioFile.Dispose();
                 }
-                AudioFile = new MediaFoundationReader(Next.Location);
+                if (Next.Type == RadioType.Radio && !CurrentSong.ContainsKey(Next))
+                {
+                    CurrentSong[Next] = Next.Songs[Randomizer.Next(Next.Songs.Count)];
+                }
+                string SongFile = Next.Type == RadioType.SingleFile ? Next.Location : Next.Location + "\\" + CurrentSong[Next].File;
+                AudioFile = new MediaFoundationReader(SongFile);
                 OutputDevice.Init(AudioFile);
                 if (Progress.ContainsKey(Next))
                 {

@@ -16,7 +16,11 @@
         /// <summary>
         /// An MP3 radio stream.
         /// </summary>
-        Stream = 2
+        Stream = 2,
+        /// <summary>
+        /// A complete radio with ads and more songs.
+        /// </summary>
+        Radio = 3
     }
 
     /// <summary>
