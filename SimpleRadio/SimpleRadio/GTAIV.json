@@ -61,6 +61,83 @@
             "frequency": 96.9,
             "type": 1,
             "loc": "scripts\\SimpleRadio\\GTAIV\\MassiveBSoundsystem\\MASSIVEB_MIX.wav"
+        },
+        {
+            "name": "Vladivostok FM (IV)",
+            "frequency": 100.8,
+            "type": 3,
+            "loc": "scripts\\SimpleRadio\\GTAIV\\VladivostokIV",
+            "songs": [
+                {
+                    "file": "ADD_SPEED.wav"
+                },
+                {
+                    "file": "BEGU_RANCHO_SONG.wav"
+                },
+                {
+                    "file": "CHIKI.wav"
+                },
+                {
+                    "file": "GNISVOULINIU.wav"
+                },
+                {
+                    "file": "HOT_SUMMER.wav"
+                },
+                {
+                    "file": "KARAOKE.wav"
+                },
+                {
+                    "file": "KINGRING.wav"
+                },
+                {
+                    "file": "KINO.wav"
+                },
+                {
+                    "file": "KVARTIRA.wav"
+                },
+                {
+                    "file": "LIBERTYCITY.wav"
+                },
+                {
+                    "file": "MAMA.wav"
+                },
+                {
+                    "file": "MON_AMI.wav"
+                },
+                {
+                    "file": "NIKOGONE.wav"
+                },
+                {
+                    "file": "NOCHJU.wav"
+                },
+                {
+                    "file": "OTEBE.wav"
+                },
+                {
+                    "file": "PLAY.wav"
+                },
+                {
+                    "file": "REP.wav"
+                },
+                {
+                    "file": "REPREZENTY.wav"
+                },
+                {
+                    "file": "RIFFMASTER_TONY.wav"
+                },
+                {
+                    "file": "SHVAYNE.wav"
+                },
+                {
+                    "file": "UNDERGROUND.wav"
+                },
+                {
+                    "file": "WILD_HORSES.wav"
+                },
+                {
+                    "file": "ZELENOGLAZOE_TAKSI.wav"
+                }
+            ]
         }
     ]
 }
