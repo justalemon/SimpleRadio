@@ -14,13 +14,37 @@ namespace SimpleRadio
 {
     public class SimpleRadio : Script
     {
+        /// <summary>
+        /// Player for MP3 streams.
+        /// </summary>
         private StreamPlayer Streaming = new StreamPlayer();
+        /// <summary>
+        /// List of radios added by the user.
+        /// </summary>
         private List<Radio> Radios = new List<Radio>();
+        /// <summary>
+        /// The current selected radio by the user.
+        /// </summary>
         private Radio Selected = null;
+        /// <summary>
+        /// The output device for local files.
+        /// </summary>
         private WaveOutEvent OutputDevice = new WaveOutEvent();
+        /// <summary>
+        /// The current local file.
+        /// </summary>
         private MediaFoundationReader AudioFile = null;
+        /// <summary>
+        /// The stored progress for the radios.
+        /// </summary>
         private Dictionary<Radio, TimeSpan> Progress = new Dictionary<Radio, TimeSpan>();
+        /// <summary>
+        /// The current song for the radios that allow it.
+        /// </summary>
         private Dictionary<Radio, Song> CurrentSong = new Dictionary<Radio, Song>();
+        /// <summary>
+        /// A random number generator.
+        /// </summary>
         private Random Randomizer = new Random();
 
         /// <summary>
