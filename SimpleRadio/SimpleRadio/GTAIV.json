@@ -1,0 +1,18 @@
+{
+  "name": "EFLC Radios",
+  "author": "Lemon",
+  "radios": [
+      {
+          "name": "Electro-Choc (EFLC)",
+          "frequency": 102.2,
+          "type": 1,
+          "loc": "scripts\\SimpleRadio\\GTAIV\\ElectroChocELFC\\THE_CROOKERS_MIX_32K.wav"
+      },
+      {
+        "name": "San Juan Sounds (EFLC)",
+        "frequency": 104.4,
+        "type": 1,
+        "loc": "scripts\\SimpleRadio\\GTAIV\\SanJuanSoundsEFLC\\SANTIAGO_SOUNDS.wav"
+    }
+  ]
+}

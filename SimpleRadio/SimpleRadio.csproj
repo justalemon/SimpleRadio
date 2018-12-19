@@ -67,6 +67,9 @@
     <None Include="SimpleRadio\Chile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="SimpleRadio\GTAIV.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="SimpleRadio\Vanilla.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
