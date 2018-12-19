@@ -10,9 +10,9 @@
         /// </summary>
         Vanilla = 0,
         /// <summary>
-        /// A local file stored on your PC.
+        /// A local large file stored on your PC.
         /// </summary>
-        Local = 1,
+        SingleFile = 1,
         /// <summary>
         /// An MP3 radio stream.
         /// </summary>
