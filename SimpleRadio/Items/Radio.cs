@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace SimpleRadio.Items
 {
@@ -33,5 +34,10 @@ namespace SimpleRadio.Items
         /// </summary>
         [JsonProperty("id")]
         public int ID { get; set; }
+        /// <summary>
+        /// List of songs used by the radio.
+        /// </summary>
+        [JsonProperty("songs")]
+        public List<Song> Songs { get; set; }
     }
 }
