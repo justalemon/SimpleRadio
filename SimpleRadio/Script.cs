@@ -42,7 +42,7 @@ namespace SimpleRadio
         /// <summary>
         /// The current local file.
         /// </summary>
-        private MediaFoundationReader AudioFile = null;
+        private WaveStream AudioFile = null;
         /// <summary>
         /// The stored progress for the radios.
         /// </summary>
@@ -199,7 +199,16 @@ namespace SimpleRadio
                     CurrentSong[Next] = Next.Songs[Randomizer.Next(Next.Songs.Count)];
                 }
                 string SongFile = Next.Type == RadioType.SingleFile ? Next.Location : Next.Location + "\\" + CurrentSong[Next].File;
-                AudioFile = new MediaFoundationReader(SongFile);
+                // "The data specified for the media type is invalid, inconsistent, or not supported by this object." with MediaFoundationReader
+                if (Path.GetExtension(SongFile) == ".wav")
+                {
+                    WaveFileReader TempWave = new WaveFileReader(SongFile);
+                    AudioFile = WaveFormatConversionStream.CreatePcmStream(TempWave);
+                }
+                else
+                {
+                    AudioFile = new MediaFoundationReader(SongFile);
+                }
                 OutputDevice.Init(AudioFile);
                 if (Progress.ContainsKey(Next))
                 {
