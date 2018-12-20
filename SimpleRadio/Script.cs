@@ -122,6 +122,9 @@ namespace SimpleRadio
 
             // Order the radios by frequency
             Radios = Radios.OrderBy(X => X.Frequency).ToList();
+
+            // Show the count of radios to the user
+            UI.Notify($"Radios available: {Radios.Count}");
         }
 
         private void OnTickFixes(object Sender, EventArgs Args)
