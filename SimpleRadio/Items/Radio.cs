@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace SimpleRadio.Items
 {
@@ -13,6 +14,12 @@ namespace SimpleRadio.Items
         /// </summary>
         [JsonProperty("name")]
         public string Name { get; set; }
+        /// <summary>
+        /// If the codec fix should be applied.
+        /// </summary>
+        [DefaultValue(false)]
+        [JsonProperty("codec_fix", DefaultValueHandling = DefaultValueHandling.Populate)]
+        public bool CodecFix { get; set; }
         /// <summary>
         /// The radio frequency.
         /// </summary>

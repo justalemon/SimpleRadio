@@ -203,7 +203,7 @@ namespace SimpleRadio
                 }
                 string SongFile = Next.Type == RadioType.SingleFile ? Next.Location : Next.Location + "\\" + CurrentSong[Next].File;
                 // "The data specified for the media type is invalid, inconsistent, or not supported by this object." with MediaFoundationReader
-                if (Path.GetExtension(SongFile) == ".wav")
+                if (Next.CodecFix)
                 {
                     WaveFileReader TempWave = new WaveFileReader(SongFile);
                     AudioFile = WaveFormatConversionStream.CreatePcmStream(TempWave);
