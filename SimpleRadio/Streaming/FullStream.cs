@@ -98,6 +98,8 @@ namespace SimpleRadio.Streaming
                 else
                 {
                     ReadAheadOffset = 0;
+                    // This line sometimes raises
+                    // System.IO.IOException: Unable to read data from the transport connection: A blocking operation was interrupted by a call to WSACancelBlockingCall.
                     ReadAheadLength = SourceStream.Read(ReadAheadBuffer, 0, ReadAheadBuffer.Length);
                     if (ReadAheadLength == 0)
                     {
