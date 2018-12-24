@@ -36,9 +36,9 @@ namespace SimpleRadio
         /// </summary>
         private Radio Selected = null;
         /// <summary>
-        /// The output device for local files.
+        /// The output device for music files.
         /// </summary>
-        private WaveOutEvent OutputDevice = new WaveOutEvent();
+        private WaveOutEvent MusicOutput = new WaveOutEvent();
         /// <summary>
         /// The current local file.
         /// </summary>
@@ -110,7 +110,7 @@ namespace SimpleRadio
             Tick += OnTickFixes;
             Tick += OnTickControls;
             Tick += OnTickDraw;
-            OutputDevice.PlaybackStopped += OnFileStop;
+            MusicOutput.PlaybackStopped += OnFileStop;
             Aborted += (Sender, Args) => { Streaming.Stop(); };
 
             // Enable the mobile phone radio
@@ -167,22 +167,22 @@ namespace SimpleRadio
             {
                 CurrentSong[Selected] = Selected.Songs[Randomizer.Next(Selected.Songs.Count)];
                 AudioFile = new MediaFoundationReader(Selected.Location + "\\" + CurrentSong[Selected].File);
-                OutputDevice.Init(AudioFile);
-                OutputDevice.Play();
+                MusicOutput.Init(AudioFile);
+                MusicOutput.Play();
             }
         }
 
         private void NextRadio()
         {
             // If there is a long file currently playing, store the playback status
-            if (OutputDevice.PlaybackState == PlaybackState.Playing)
+            if (MusicOutput.PlaybackState == PlaybackState.Playing)
             {
                 Progress[Selected] = AudioFile.CurrentTime;
             }
 
             // Stop the streaming radio and local file
             Streaming.Stop();
-            OutputDevice.Stop();
+            MusicOutput.Stop();
 
             // Is the next radio is vanilla
             if (Next.Type == RadioType.Vanilla)
@@ -212,7 +212,7 @@ namespace SimpleRadio
                 {
                     AudioFile = new MediaFoundationReader(SongFile);
                 }
-                OutputDevice.Init(AudioFile);
+                MusicOutput.Init(AudioFile);
                 if (Progress.ContainsKey(Next))
                 {
                     AudioFile.CurrentTime = Progress[Next];
@@ -223,7 +223,7 @@ namespace SimpleRadio
                     TimeSpan RandomTimeSpan = TimeSpan.FromSeconds(RandomPosition);
                     AudioFile.CurrentTime = RandomTimeSpan;
                 }
-                OutputDevice.Play();
+                MusicOutput.Play();
             }
             // If the radio is a stream
             else if (Next.Type == RadioType.Stream)
