@@ -40,6 +40,10 @@ namespace SimpleRadio
         /// </summary>
         private WaveOutEvent MusicOutput = new WaveOutEvent();
         /// <summary>
+        /// The output device for radio announcements.
+        /// </summary>
+        private WaveOutEvent AdsOutput = new WaveOutEvent();
+        /// <summary>
         /// The current local file.
         /// </summary>
         private WaveStream AudioFile = null;
