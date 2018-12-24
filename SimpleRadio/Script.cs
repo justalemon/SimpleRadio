@@ -135,6 +135,15 @@ namespace SimpleRadio
         {
             // Enable the mobile radio this tick
             Function.Call(Hash.SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY, true);
+
+            // Cheat for changing the song to the next one
+            if (Function.Call<bool>(Hash._0x557E43C447E700A8, Game.GenerateHash("sr next")))
+            {
+                if (Selected.Type == RadioType.Radio)
+                {
+                    MusicFile.CurrentTime = MusicFile.TotalTime;
+                }
+            }
         }
 
         private void OnTickControls(object Sender, EventArgs Args)
