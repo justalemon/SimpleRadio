@@ -46,7 +46,7 @@ namespace SimpleRadio
         /// <summary>
         /// The current local file.
         /// </summary>
-        private WaveStream AudioFile = null;
+        private WaveStream MusicFile = null;
         /// <summary>
         /// The stored progress for the radios.
         /// </summary>
@@ -167,11 +167,11 @@ namespace SimpleRadio
 
         private void OnFileStop(object Sender, StoppedEventArgs Args)
         {
-            if (AudioFile.TotalTime == AudioFile.CurrentTime && Selected.Type == RadioType.Radio)
+            if (MusicFile.TotalTime == MusicFile.CurrentTime && Selected.Type == RadioType.Radio)
             {
                 CurrentSong[Selected] = Selected.Songs[Randomizer.Next(Selected.Songs.Count)];
-                AudioFile = new MediaFoundationReader(Selected.Location + "\\" + CurrentSong[Selected].File);
-                MusicOutput.Init(AudioFile);
+                MusicFile = new MediaFoundationReader(Selected.Location + "\\" + CurrentSong[Selected].File);
+                MusicOutput.Init(MusicFile);
                 MusicOutput.Play();
             }
         }
@@ -181,7 +181,7 @@ namespace SimpleRadio
             // If there is a long file currently playing, store the playback status
             if (MusicOutput.PlaybackState == PlaybackState.Playing)
             {
-                Progress[Selected] = AudioFile.CurrentTime;
+                Progress[Selected] = MusicFile.CurrentTime;
             }
 
             // Stop the streaming radio and local file
@@ -197,9 +197,9 @@ namespace SimpleRadio
             else if (Next.Type == RadioType.SingleFile || Next.Type == RadioType.Radio)
             {
                 Game.RadioStation = RadioStation.RadioOff;
-                if (AudioFile != null)
+                if (MusicFile != null)
                 {
-                    AudioFile.Dispose();
+                    MusicFile.Dispose();
                 }
                 if (Next.Type == RadioType.Radio && !CurrentSong.ContainsKey(Next))
                 {
@@ -210,22 +210,22 @@ namespace SimpleRadio
                 if (Next.CodecFix)
                 {
                     WaveFileReader TempWave = new WaveFileReader(SongFile);
-                    AudioFile = WaveFormatConversionStream.CreatePcmStream(TempWave);
+                    MusicFile = WaveFormatConversionStream.CreatePcmStream(TempWave);
                 }
                 else
                 {
-                    AudioFile = new MediaFoundationReader(SongFile);
+                    MusicFile = new MediaFoundationReader(SongFile);
                 }
-                MusicOutput.Init(AudioFile);
+                MusicOutput.Init(MusicFile);
                 if (Progress.ContainsKey(Next))
                 {
-                    AudioFile.CurrentTime = Progress[Next];
+                    MusicFile.CurrentTime = Progress[Next];
                 }
                 else
                 {
-                    int RandomPosition = Randomizer.Next((int)AudioFile.TotalTime.TotalSeconds);
+                    int RandomPosition = Randomizer.Next((int)MusicFile.TotalTime.TotalSeconds);
                     TimeSpan RandomTimeSpan = TimeSpan.FromSeconds(RandomPosition);
-                    AudioFile.CurrentTime = RandomTimeSpan;
+                    MusicFile.CurrentTime = RandomTimeSpan;
                 }
                 MusicOutput.Play();
             }
